@@ -1,0 +1,90 @@
+/* Keys are semantic, not English source text. scripts/verify-app.sh fails the build if this file and zh-Hans.lproj/Localizable.strings declare different key sets. */
+
+/* Menu bar */
+"menu.about" = "About PvZ Portable";
+"menu.hide" = "Hide PvZ Portable";
+"menu.quit" = "Quit PvZ Portable";
+"menu.edit" = "Edit";
+"menu.undo" = "Undo";
+"menu.redo" = "Redo";
+"menu.cut" = "Cut";
+"menu.copy" = "Copy";
+"menu.paste" = "Paste";
+"menu.select_all" = "Select All";
+
+/* Shared */
+"common.ok" = "OK";
+"common.cancel" = "Cancel";
+"common.choose" = "Choose…";
+"common.unknown" = "unknown";
+
+/* Home: header */
+"badge.cheat" = "Cheat keys";
+"badge.fixes" = "Bug fixes";
+
+/* Home: missing assets */
+"home.no_assets.title" = "No game assets yet";
+"home.no_assets.body" = "This project ships no copyrighted material. You need to supply main.pak and properties/ from your own copy of Plants vs. Zombies: GOTY Edition.";
+"home.import" = "Import assets…";
+"home.reimport" = "Re-import…";
+"home.importing" = "Importing assets…";
+
+/* Home: directories */
+"home.section.directories" = "Directories";
+"home.resource_dir" = "Assets";
+"home.save_dir" = "Save data";
+"home.default_placeholder" = "(default)";
+"home.assets_found" = "Found main.pak and properties/";
+"home.assets_missing" = "main.pak or properties/ is missing";
+"home.save_dir.default" = "Leave empty to use the engine's default";
+"home.reveal" = "Reveal in Finder";
+"home.engine" = "Engine";
+"home.engine.fixed" = "Community bug fixes";
+"home.engine.vanilla" = "Original behaviour";
+"home.engine.note" = "DO_FIX_BUGS is a compile-time option with no runtime switch, so this picks between two separate binaries.";
+
+/* Home: runtime flags */
+"home.section.flags" = "Runtime flags";
+"flag.cheat.desc" = "Cheat keys / debug keys";
+"flag.cheat.unavailable" = "This build has PVZ_DEBUG off, so cheat keys were never compiled in — passing -cheat does nothing.";
+"flag.screensaver.desc" = "Screensaver mode; disables the single-instance lock";
+"flag.record.desc" = "Record a demo";
+"flag.record.placeholder" = "Empty = auto timestamped name";
+"flag.recnum.desc" = "Record, keeping only the first N";
+"flag.play.desc" = "Play back a demo";
+"flag.play.placeholder" = "Empty = most recent";
+"flag.playnum.desc" = "Play back the Nth recording (by timestamp)";
+"flag.crash.desc" = "Crash on launch (upstream's crash-handler test)";
+"home.extra_args" = "Extra arguments";
+"home.extra_args.placeholder" = "Appended to argv verbatim";
+"home.extra_args.note" = "The engine shows a dialog and exits on any argument it doesn't recognise. The flags above are everything it accepts.";
+
+/* Home: preview and footer */
+"home.section.preview" = "Command line preview";
+"home.skip" = "Skip this screen next time";
+"home.skip.help" = "Hold ⌥ while launching to get back here.";
+"home.quit" = "Quit";
+"home.start" = "Start Game";
+
+/* -crash confirmation */
+"crash.confirm.title" = "Really enable -crash?";
+"crash.confirm.message" = "This makes the engine dereference a null pointer immediately on launch. Upstream uses it to test crash handling.";
+"crash.confirm.enable" = "Enable -crash";
+
+/* Asset import */
+"import.panel.title" = "Choose PvZ game assets";
+"import.panel.message" = "Pick a folder containing main.pak and properties/, or a zip of them.";
+"import.panel.prompt" = "Import";
+
+/* Errors */
+"error.import.title" = "Import failed";
+/* %@ = the name of the folder or zip the user picked */
+"error.import.not_found" = "No game assets found in %@.\n\nWhat's needed is a folder containing main.pak and properties/ (or a zip of them), from your own copy of Plants vs. Zombies: GOTY Edition.";
+/* %d = ditto's exit status */
+"error.import.unzip_failed" = "Unzip failed (ditto exited with %d)";
+
+"error.launch.title" = "Launch failed";
+/* %@ = engine executable name */
+"error.engine_missing" = "Can't find the engine %@.\n\nThis .app looks incompletely assembled. Run `devenv shell -- build-engine`, then `devenv shell -- build-app`.";
+/* %1$@ = engine path, %2$@ = strerror text */
+"error.exec_failed" = "Failed to launch %1$@: %2$@";

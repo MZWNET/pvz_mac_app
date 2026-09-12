@@ -1,0 +1,102 @@
+name: Update
+
+on:
+  schedule:
+    # off the hour on purpose: GitHub drops scheduled runs when its queue is congested
+    - cron: "37 3 * * *"
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/nvchecker/config.toml"
+      - ".github/workflows/update.yml"
+
+permissions:
+  contents: write # commit the bump
+  actions: write # dispatch release.yml
+
+# a scheduled run and a config push must not both bump and dispatch
+concurrency:
+  group: update
+
+jobs:
+  update:
+    name: Check upstream for a new release
+    # No mac needed to ask GitHub a question; devenv.nix keeps its two darwin-only packages behind isDarwin for exactly this.
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      # nvchecker comes from the devenv shell, same as every other tool here
+      - uses: ./.github/actions/setup-devenv
+
+      - name: Compare upstream against the pinned ref
+        id: check
+        env:
+          # anonymous GitHub API calls are capped at 60/hour per runner IP, shared with everything else on that machine
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NVC: .github/nvchecker
+        run: |
+          set -euo pipefail
+
+          pinned="$(sed -n 's/^[[:space:]]*env\.PVZP_UPSTREAM_REF[[:space:]]*=[[:space:]]*"\([^"]*\)".*/\1/p' devenv.nix)"
+          [[ -n "$pinned" ]] || {
+            echo "::error file=devenv.nix::env.PVZP_UPSTREAM_REF not found"
+            exit 1
+          }
+
+          # devenv.nix is the version record, so oldver is derived from it each run rather than kept somewhere it could drift from what we package
+          printf '{"version": 2, "data": {"pvz-portable": {"version": "%s"}}}\n' "$pinned" >"$NVC/old_ver.json"
+          printf '[keys]\ngithub = "%s"\n' "$GH_TOKEN" >"$NVC/keys.toml"
+
+          # --failures so a rate-limited or broken check fails the run instead of reading as "no update"
+          devenv shell -- nvchecker -c "$NVC/config.toml" -k "$NVC/keys.toml" --failures
+          # devenv keeps its own output on stderr, so the JSON arrives intact
+          devenv shell -- nvcmp -c "$NVC/config.toml" --newer --json | tee "$NVC/result.json"
+
+          latest="$(jq -r '.[] | select(.name == "pvz-portable") | .newver' "$NVC/result.json")"
+          if [[ -z "$latest" ]]; then
+            echo "::notice::PvZ-Portable $pinned is current"
+            exit 0
+          fi
+
+          # this goes into devenv.nix, a sed replacement and a workflow input, so anything that is not a plain version stops here
+          [[ "$latest" =~ ^[A-Za-z0-9][A-Za-z0-9._+-]*$ ]] || {
+            echo "::error::upstream tag '$latest' is not a plain version; bump devenv.nix by hand"
+            exit 1
+          }
+
+          echo "version=$latest" >>"$GITHUB_OUTPUT"
+          echo "::notice::PvZ-Portable $pinned → $latest"
+
+      - name: Bump the pin, refresh the lock and start a release
+        if: steps.check.outputs.version != ''
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ steps.check.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          # through a temp file rather than sed -i, whose in-place flag differs between GNU and BSD sed
+          sed "s/\(env\.PVZP_UPSTREAM_REF[[:space:]]*=[[:space:]]*\"\)[^\"]*\"/\1$VERSION\"/" devenv.nix >devenv.nix.bumped
+          mv devenv.nix.bumped devenv.nix
+          if git diff --quiet devenv.nix; then
+            echo "::error file=devenv.nix::env.PVZP_UPSTREAM_REF was not rewritten"
+            exit 1
+          fi
+
+          # A new engine is the moment to take newer SDL, libpng and the rest with it, since the release built from this commit is what exercises the combination. An input that cannot be fetched fails here, before the bump is committed.
+          devenv update
+
+          git --no-pager diff --stat devenv.nix devenv.lock
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "chore: package PvZ-Portable $VERSION" devenv.nix devenv.lock
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+          # A push made with GITHUB_TOKEN raises no events, so release.yml has to be dispatched explicitly — which is also what rules out a loop. --ref resolves to the commit just pushed.
+          gh workflow run release.yml \
+            --ref "$GITHUB_REF_NAME" \
+            -f upstream_ref="$VERSION" \
+            -f variants=single \
+            -f publish=yes

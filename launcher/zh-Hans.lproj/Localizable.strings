@@ -1,0 +1,90 @@
+/* Keys are semantic, not English source text. scripts/verify-app.sh fails the build if this file and en.lproj/Localizable.strings declare different key sets. */
+
+/* Menu bar */
+"menu.about" = "关于 PvZ Portable";
+"menu.hide" = "隐藏 PvZ Portable";
+"menu.quit" = "退出 PvZ Portable";
+"menu.edit" = "编辑";
+"menu.undo" = "撤销";
+"menu.redo" = "重做";
+"menu.cut" = "剪切";
+"menu.copy" = "拷贝";
+"menu.paste" = "粘贴";
+"menu.select_all" = "全选";
+
+/* Shared */
+"common.ok" = "好";
+"common.cancel" = "取消";
+"common.choose" = "选择…";
+"common.unknown" = "未知";
+
+/* Home: header */
+"badge.cheat" = "作弊键";
+"badge.fixes" = "bug 修复";
+
+/* Home: missing assets */
+"home.no_assets.title" = "还没有游戏资源";
+"home.no_assets.body" = "这个项目不含任何受版权保护的素材,需要你自备一份 Plants vs. Zombies: GOTY Edition 的 main.pak 和 properties/。";
+"home.import" = "导入资源…";
+"home.reimport" = "重新导入…";
+"home.importing" = "正在导入资源…";
+
+/* Home: directories */
+"home.section.directories" = "目录";
+"home.resource_dir" = "资源目录";
+"home.save_dir" = "存档目录";
+"home.default_placeholder" = "(默认)";
+"home.assets_found" = "已找到 main.pak 和 properties/";
+"home.assets_missing" = "缺 main.pak 或 properties/";
+"home.save_dir.default" = "留空 = 用引擎的默认位置";
+"home.reveal" = "在访达中显示";
+"home.engine" = "引擎";
+"home.engine.fixed" = "社区 bug 修复";
+"home.engine.vanilla" = "原版行为";
+"home.engine.note" = "DO_FIX_BUGS 是编译期开关,没有运行时参数 —— 所以这里切换的是两个不同的二进制。";
+
+/* Home: runtime flags */
+"home.section.flags" = "运行时参数";
+"flag.cheat.desc" = "作弊键 / 调试键";
+"flag.cheat.unavailable" = "本次构建没开 PVZ_DEBUG,作弊键根本没编进引擎,传了也是空操作。";
+"flag.screensaver.desc" = "屏保模式,会关掉单实例限制";
+"flag.record.desc" = "录制 demo";
+"flag.record.placeholder" = "留空 = 自动按时间戳命名";
+"flag.recnum.desc" = "录制,只保留前 N 个";
+"flag.play.desc" = "回放 demo";
+"flag.play.placeholder" = "留空 = 最近一个";
+"flag.playnum.desc" = "回放第 N 个(按时间戳)";
+"flag.crash.desc" = "启动即崩溃(上游用来测崩溃处理)";
+"home.extra_args" = "其他参数";
+"home.extra_args.placeholder" = "原样追加到 argv 末尾";
+"home.extra_args.note" = "引擎对认不出来的参数会弹框然后退出,别乱填。上面这些就是它支持的全部参数。";
+
+/* Home: preview and footer */
+"home.section.preview" = "命令行预览";
+"home.skip" = "下次跳过此界面";
+"home.skip.help" = "跳过之后,按住 ⌥ 启动可以回到这里。";
+"home.quit" = "退出";
+"home.start" = "开始游戏";
+
+/* -crash confirmation */
+"crash.confirm.title" = "确定要启用 -crash 吗?";
+"crash.confirm.message" = "这个参数会让引擎一启动就解引用空指针崩溃,是上游用来测崩溃处理的。";
+"crash.confirm.enable" = "启用 -crash";
+
+/* Asset import */
+"import.panel.title" = "选择 PvZ 游戏资源";
+"import.panel.message" = "选择含有 main.pak 和 properties/ 的文件夹,或者打包好的 zip。";
+"import.panel.prompt" = "导入";
+
+/* Errors */
+"error.import.title" = "导入失败";
+/* %@ = 用户选中的文件夹或 zip 的名字 */
+"error.import.not_found" = "在 %@ 里没找到游戏资源。\n\n需要的是一个含有 main.pak 和 properties/ 的目录(或打包成 zip),它们来自你自己购买的 Plants vs. Zombies: GOTY Edition。";
+/* %d = ditto 的退出码 */
+"error.import.unzip_failed" = "解压失败(ditto 退出码 %d)";
+
+"error.launch.title" = "启动失败";
+/* %@ = 引擎可执行文件名 */
+"error.engine_missing" = "找不到引擎 %@。\n\n这个 .app 是不是组装得不完整?先跑 `devenv shell -- build-engine`,再跑 `devenv shell -- build-app`。";
+/* %1$@ = 引擎路径,%2$@ = strerror 的文字 */
+"error.exec_failed" = "启动 %1$@ 失败:%2$@";

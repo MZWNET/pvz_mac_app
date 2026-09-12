@@ -1,0 +1,16 @@
+version: 2
+updates:
+  # Only the actions: dependabot has no nix ecosystem, and the engine version is looked after by update.yml instead.
+  - package-ecosystem: "github-actions"
+    # the second entry is the composite action; "/" only covers .github/workflows
+    directories:
+      - "/"
+      - "/.github/actions/setup-devenv"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "chore"
+    # one PR a week for every action rather than one per action
+    groups:
+      actions:
+        patterns: ["*"]

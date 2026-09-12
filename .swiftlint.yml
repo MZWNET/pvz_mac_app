@@ -1,0 +1,11 @@
+included: [launcher]
+
+disabled_rules:
+  # comments are one line per sentence on purpose, however long that line gets
+  - line_length
+  # fm / ch / on / to are local enough to read
+  - identifier_name
+  # swift-format requires the trailing commas swiftlint rejects; .swift-format wins
+  - trailing_comma
+  # one site, in OptionsStore.save, where encoding a struct of primitives cannot fail
+  - force_try

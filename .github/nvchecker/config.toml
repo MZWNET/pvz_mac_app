@@ -1,0 +1,11 @@
+# Watched by ../workflows/update.yml.
+#
+# Both record files are generated per run and gitignored: old_ver.json from env.PVZP_UPSTREAM_REF in devenv.nix, new_ver.json by nvchecker itself. Paths below are relative to this file.
+[__config__]
+oldver = "old_ver.json"
+newver = "new_ver.json"
+
+[pvz-portable]
+source = "github"
+github = "wszqkzqk/PvZ-Portable"
+use_latest_release = true

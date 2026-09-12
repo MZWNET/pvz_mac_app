@@ -1,0 +1,99 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      upstream_ref:
+        description: "Upstream PvZ-Portable tag or branch (empty = the default in devenv.nix)"
+        required: false
+        default: ""
+      variants:
+        description: "single = community-fixed engine only; both = also ship the original-behaviour binary"
+        required: false
+        default: single
+        type: choice
+        options: [single, both]
+      publish:
+        description: "Publish a release, tagged after the engine version (a tag push always publishes)"
+        required: false
+        default: "no"
+        type: choice
+        options: ["no", "yes"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build .app and DMG
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/setup-devenv
+
+      # before the engine build, which is the long part, since this depends on nothing but the sources
+      - name: Lint the launcher
+        run: devenv shell -- lint
+
+      - name: Build the engine
+        env:
+          UPSTREAM_REF: ${{ inputs.upstream_ref }}
+          VARIANTS: ${{ inputs.variants || 'single' }}
+        run: |
+          if [ -n "$UPSTREAM_REF" ]; then
+            devenv shell -- build-engine --variants "$VARIANTS" --ref "$UPSTREAM_REF"
+          else
+            devenv shell -- build-engine --variants "$VARIANTS"
+          fi
+
+      - name: Generate the icon
+        run: devenv shell -- make-appicon --source third_party/PvZ-Portable/icon.png
+
+      - name: Assemble the .app
+        run: devenv shell -- build-app
+
+      - name: Build the DMG
+        run: devenv shell -- build-dmg
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: PvZ-Portable-macOS
+          path: out/*.dmg
+          if-no-files-found: error
+
+      - name: Resolve the release tag
+        id: release
+        run: |
+          set -euo pipefail
+          json() { plutil -extract "$1" raw -o - out/engine/build-info.json; }
+
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "tag=$GITHUB_REF_NAME" >>"$GITHUB_OUTPUT"
+          else
+            # The update workflow cannot push a tag that starts a workflow run, so a dispatched release names its own, after the engine it actually built.
+            echo "tag=v$(json engineVersionFull)" >>"$GITHUB_OUTPUT"
+          fi
+          echo "ref=$(json engineRef)" >>"$GITHUB_OUTPUT"
+          echo "commit=$(json engineCommit)" >>"$GITHUB_OUTPUT"
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/') || inputs.publish == 'yes'
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ steps.release.outputs.tag }}
+          files: out/*.dmg
+          body: |
+            macOS .app packaging of PvZ-Portable.
+
+            **Neither signed nor notarized**, so Gatekeeper blocks the downloaded bundle until you clear its quarantine attribute once:
+
+            ```sh
+            xattr -dr com.apple.quarantine "/Applications/PvZ Portable.app"
+            ```
+
+            **Contains no game assets.** On first launch you pick your own copy of Plants vs. Zombies: GOTY Edition (`main.pak` + `properties/`, folder or zip); it is imported into `~/Library/Application Support/io.github.wszqkzqk/PvZPortable/`.
+
+            Engine: [wszqkzqk/PvZ-Portable](https://github.com/wszqkzqk/PvZ-Portable) `${{ steps.release.outputs.ref }}` (`${{ steps.release.outputs.commit }}`), LGPL-3.0-or-later.

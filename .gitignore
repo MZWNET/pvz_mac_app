@@ -1,0 +1,19 @@
+# devenv / direnv
+.devenv/
+.devenv.flake.nix
+.direnv/
+
+# build output
+/out/
+/third_party/
+/build/
+/DerivedData/
+
+# generated from project.yml
+/PvZPortable.xcodeproj/
+
+# written per run by the update workflow
+/.github/nvchecker/*.json
+/.github/nvchecker/keys.toml
+
+.DS_Store
