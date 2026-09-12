@@ -5,7 +5,7 @@ options:
   createIntermediateGroups: true
   developmentLanguage: en
   deploymentTarget:
-    macOS: "13.0"
+    macOS: ${PVZP_DEPLOYMENT_TARGET}
 
 settings:
   base:

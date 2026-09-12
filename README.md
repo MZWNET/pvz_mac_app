@@ -14,7 +14,7 @@ xattr -dr com.apple.quarantine "/Applications/PvZ Portable.app"
 
 ## Build
 
-Every tool is in `devenv.nix`. Xcode is required on top of it — the engine is compiled with the system clang and SDK, and the launcher with Xcode's own Swift toolchain.
+Every tool is in `devenv.nix`; the engine is compiled with the clang and Apple SDK that come with it. Xcode is needed on top of that for the launcher, which xcodebuild builds with Xcode's own Swift toolchain.
 
 ```sh
 direnv allow                # or prefix each command with `devenv shell --`
@@ -32,8 +32,8 @@ build-dmg                   # package                        → out/*.dmg
 
 - The engine and `libs/` live in `Contents/MacOS/` because upstream's rpath is already `@executable_path/libs/`. The launcher `execv`s the engine over itself, so the PID is unchanged, the Dock icon doesn't bounce twice, and it can drop the argv LaunchServices handed it — the engine exits on any argument it doesn't recognise.
 - Assets go to `~/Library/Application Support/io.github.wszqkzqk/PvZPortable/`, not into the bundle, so the `.app` stays replaceable and its signature intact.
-- arm64 only, not sandboxed, and the real OS floor is whatever the build machine's SDK produced — `verify-app.sh` prints the engine's actual `minos`.
+- arm64 only, not sandboxed, macOS 13.3 or newer. That floor is set by `std::to_chars`, which the engine reaches through `std::format` and Apple's libc++ marks unavailable before 13.3; `verify-app.sh` prints the engine's actual `minos`.
 
 ## Licence
 
-LGPL-3.0-or-later, matching the engine. This repo is the packaging scripts and the launcher.
+LGPL-3.0-or-later

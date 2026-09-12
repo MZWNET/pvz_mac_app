@@ -12,8 +12,7 @@ ENGINE_OUT="$OUT_DIR/engine"
 APP_OUT="$OUT_DIR/$APP_NAME.app"
 THIRD_PARTY="$ROOT/third_party"
 
-# Only bounds our own code; the real floor comes from the toolchain and is reported by verify-app.sh.
-PVZP_DEPLOYMENT_TARGET="${PVZP_DEPLOYMENT_TARGET:-13.0}"
+: "${PVZP_DEPLOYMENT_TARGET:?unset — set in devenv.nix, so run inside the devenv shell}"
 
 if [[ -t 2 ]]; then
   _c_red=$'\033[31m' _c_yel=$'\033[33m' _c_grn=$'\033[32m' _c_dim=$'\033[2m' _c_off=$'\033[0m'
