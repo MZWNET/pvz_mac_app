@@ -39,8 +39,10 @@ info "generating the Xcode project"
 
 info "building the launcher ($CONFIGURATION, v$MARKETING_VERSION build $BUILD_NUMBER)"
 DERIVED="$ROOT/build/xcode"
-# Apple's toolchain has to link this, but the devenv shell shadows xcrun, ld and clang with nix's and points SDKROOT/DEVELOPER_DIR at the nix SDK — the opposite of what the engine build needs, so only this call is sanitized.
-env -u SDKROOT -u DEVELOPER_DIR PATH=/usr/bin:/bin:/usr/sbin:/sbin xcodebuild \
+# The devenv shell exports LD=ld for nix's toolchain, and xcodebuild takes environment variables as build-setting overrides — Xcode then drives the link with ld instead of clang, and clang's own flags reach ld verbatim. The rest of nix's toolchain variables turn out to be ignored here.
+unset LD
+
+xcodebuild \
   -project "$ROOT/PvZPortable.xcodeproj" \
   -scheme PvZPortable \
   -configuration "$CONFIGURATION" \
