@@ -40,7 +40,7 @@ in {
       swiftlint
     ];
 
-  env.PVZP_UPSTREAM_REF = "0.2.3";
+  env.PVZP_UPSTREAM_REF = "0.2.4";
 
   # Not lower than 13.3: the engine formats floating point through std::format, which calls std::to_chars, and Apple's libc++ marks that unavailable before 13.3. build-engine.sh passes it to CMake, project.yml reads it through XcodeGen's ${...} substitution.
   env.PVZP_DEPLOYMENT_TARGET = "13.3";
